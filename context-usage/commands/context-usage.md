@@ -1,8 +1,7 @@
 ---
 description: Show this chat's context-window usage (tokens and % of the model limit)
-argument-hint: "[--all]"
-allowed-tools: Bash(node:*)
+argument-hint: "[all]"
 ---
-Show the user the output below **exactly as printed** — it is already formatted, so do not summarize, reword, or add commentary unless they ask a follow-up question.
+Call the **`context_usage`** tool (from the `context-usage` MCP server) to measure this conversation's context-window usage, then show the user the text it returns **exactly as-is** — it is preformatted, so do not summarize, reword, or add commentary unless they ask a follow-up.
 
-!`node "${CLAUDE_PLUGIN_ROOT}/scripts/context-usage.mjs" --session "${CLAUDE_SESSION_ID}" --project "${CLAUDE_PROJECT_DIR}" $ARGUMENTS`
+If the user's argument is `all`, call the tool with `all: true` to list every chat instead of just the current one.

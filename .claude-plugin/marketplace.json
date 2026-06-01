@@ -5,8 +5,8 @@
     {
       "name": "context-usage",
       "source": "./context-usage",
-      "description": "Context-window usage meter for Cowork / Claude Code.",
-      "version": "0.1.0"
+      "description": "See how full each chat's context window is — via a local MCP tool and a /context-usage command.",
+      "version": "0.2.0"
     }
   ]
 }

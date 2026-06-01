@@ -1,6 +1,7 @@
 {
   "name": "context-usage",
-  "description": "Show the current chat's context-window usage — tokens and % of the model limit.",
-  "version": "0.1.0",
-  "author": { "name": "Tommy" }
+  "description": "See how full this chat's context window is — tokens used vs the model limit. Adds /context-usage, backed by a local MCP tool.",
+  "version": "0.2.0",
+  "author": { "name": "Tommy" },
+  "keywords": ["context", "tokens", "usage", "mcp"]
 }

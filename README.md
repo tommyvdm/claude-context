@@ -1,10 +1,8 @@
 # claude-context
 
-A tiny plugin that shows how full your **context window** is in any Claude Cowork (or Claude Code) chat — like Claude Code's `/context`, but as an installable command you can share.
+A tiny plugin that shows how full your **context window** is in a Claude Cowork (or Claude Code) chat — like Claude Code's `/context`, but as an installable, shareable command.
 
-It reads the session transcript that the app already writes to disk and reports the tokens occupying the window on the latest turn, as a percentage of the model's limit.
-
-This repo doubles as a one-plugin **marketplace**, so installing is the same idea everywhere: point your client at the repo, then enable the `context-usage` plugin.
+It reads the session transcript the app already writes to disk and reports the tokens occupying the window on the latest turn, as a percentage of the model's limit. The work is done by a small **local MCP tool** (no shell access required), so it runs inside Cowork.
 
 ## Install — Cowork (desktop app)
 
@@ -14,7 +12,8 @@ This repo doubles as a one-plugin **marketplace**, so installing is the same ide
    https://github.com/tommyvdm/claude-context
    ```
 3. Install **context-usage** from the list.
-4. Run it in any chat: `/context-usage`
+4. Installing enables a local MCP server named `context-usage` — **approve it** if Cowork asks, then **restart Cowork** so the server loads.
+5. Run it in any chat: `/context-usage`
 
 ## Install — Claude Code (CLI)
 
@@ -27,22 +26,24 @@ This repo doubles as a one-plugin **marketplace**, so installing is the same ide
 
 ```
 /context-usage          # this chat's usage
-/context-usage --all    # every chat, most recent first
+/context-usage all      # every chat, most recent first
 ```
+
+You can also just ask: *"what's my context usage?"* — the model will call the `context_usage` tool.
 
 Example:
 ```
-Context usage — claude-opus-4-7
-████████░░░░░░░░░░░░░░░░  34.2%   🟢 ok
-68,400 / 200,000 tokens  (assuming 200K window)
+Context usage — claude-opus-4-8
+██████████████░░░░░░░░░░  57.8%   🟢 ok
+115,565 / 200,000 tokens  (assuming 200K window)
 
 Last turn breakdown:
-  cached (read back)   61,200
-  newly cached          5,100
-  fresh input           2,100
-  ─────────────────────
-  in context           68,400
-  (reply output)        1,240
+  cached (read back)     111,049
+  newly cached             4,514
+  fresh input                  2
+  ─────────────────────────────
+  in context             115,565
+  (reply output)             243
 ```
 
 ## How it works
@@ -51,12 +52,17 @@ Last turn breakdown:
 - Each assistant turn records `message.usage`. Tokens in the window =
   `input_tokens + cache_creation_input_tokens + cache_read_input_tokens` on the
   most recent assistant turn.
-- The command passes the current `${CLAUDE_SESSION_ID}` / `${CLAUDE_PROJECT_DIR}`
-  to `scripts/context-usage.mjs`, which finds that transcript (falling back to
-  the newest transcript in the project folder) and prints the meter.
+- The plugin runs a **zero-dependency local MCP server** (`scripts/server.mjs`)
+  exposing a `context_usage` tool. The `/context-usage` command calls that tool,
+  which finds the active chat's transcript (or the one you name) and returns the
+  meter. Using MCP instead of a shell command is what lets it work inside Cowork,
+  where the model can't run ad-hoc shell.
+- A CLI entry (`scripts/context-usage.mjs`) is also included for Claude Code
+  terminal use; both share `scripts/usage-core.mjs`.
 
 ## Caveats
 
-- The window size defaults to **200K** (auto-bumps to **1M** if usage exceeds 200K, or set `--window`). Extended-context plans can't always be detected from the transcript alone.
+- The window size defaults to **200K** (auto-bumps to **1M** if usage exceeds 200K, or pass `window`). Extended-context plans can't always be detected from the transcript alone.
 - This reports the **true %** of the model window. Claude Code's `/context` factors in an internal auto-compact buffer (threshold undocumented), so numbers won't match exactly.
+- The "current chat" is resolved as the most recently active transcript; pass a `session_id` to target a specific one.
 - Works wherever transcripts are on disk (Cowork, Claude Code). It cannot work in claude.ai chat, which keeps conversations server-side.
