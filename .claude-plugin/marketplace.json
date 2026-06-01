@@ -1,0 +1,12 @@
+{
+  "name": "claude-context",
+  "owner": { "name": "tommyvdm" },
+  "plugins": [
+    {
+      "name": "context-usage",
+      "source": "./context-usage",
+      "description": "Context-window usage meter for Cowork / Claude Code.",
+      "version": "0.1.0"
+    }
+  ]
+}
